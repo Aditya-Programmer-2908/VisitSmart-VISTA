@@ -233,20 +233,24 @@ def handle_direct_city_query(city_name):
 def handle_museum_by_id(museum_id, request):
     try:
         museum = Museum.objects.get(id=museum_id)
+
         request.session['last_museum_id'] = museum.id
+
         response = (
             f"🖼 **Museum Details**:\n\n"
-            f"**ID**: {museum.id}>>>\n"
-            f"**Name**: {museum.name}>>>\n"
-            f"**City**: {museum.city}>>>\n"
-            f"**State**: {museum.state}>>>\n"
-            f"**Description**: {museum.description}>>>"
-            f"Inorder to book tickets type 'booking info'"
+            f"**ID**: {museum.id}\n"
+            f"**Name**: {museum.name}\n"
+            f"**City**: {museum.city}\n"
+            f"**State**: {museum.state}\n"
+            f"**Description**: {museum.description}\n\n"
+            f"In order to book tickets, type 'booking info'."
         )
+
     except Museum.DoesNotExist:
         response = "⚠️ No museum found with the provided ID. Please check the ID and try again."
-
+    
     return response
+
 
 def handle_unknown_query(user_message):
     response = (
@@ -457,49 +461,6 @@ def handle_slot_input(slot_code, last_museum_id, user_id, request):
 
     # Return the response about slot availability and confirmation
     return response
-
-from django.utils.dateparse import parse_date
-
-from django.utils.dateparse import parse_date
-
-import logging
-from django.utils.dateparse import parse_date
-
-from django.http import JsonResponse
-from django.utils.dateparse import parse_date
-import logging
-
-from django.http import JsonResponse
-from django.utils.dateparse import parse_date
-import logging
-
-from django.http import JsonResponse
-from .models import Transaction, Museum
-from django.utils.dateparse import parse_date
-import logging
-
-from django.http import JsonResponse
-from django.utils.dateparse import parse_date
-import logging
-
-from django.http import JsonResponse
-from django.utils.dateparse import parse_date
-import logging
-
-from django.http import JsonResponse
-from django.utils.dateparse import parse_date
-import logging
-
-from django.http import JsonResponse
-from django.utils.dateparse import parse_date
-import logging
-from django.http import JsonResponse
-from django.utils.dateparse import parse_date
-import logging
-
-from django.http import JsonResponse
-from django.utils.dateparse import parse_date
-import logging
 
 from django.http import JsonResponse
 from django.utils.dateparse import parse_date

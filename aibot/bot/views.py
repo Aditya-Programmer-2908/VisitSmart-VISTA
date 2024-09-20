@@ -88,10 +88,7 @@ def chat_response(request):
         elif "booking info" in user_message:
             response = booking_query(last_museum_id)
             response += (
-                " Choose a slot out of ***'s1': 'time': '9:00 to 10:00' ****, ***'s2': 'time': '10:00 to 11:00' ***, "
-                "***'s3': 'time': '11:00 to 12:00' ***, ***'s4': 'time': '12:00 to 13:00' ***, ***'s5': 'time': '13:00 to 14:00' ***, "
-                "***'s6': 'time': '14:00 to 15:00' ***, ***'s7': 'time': '15:00 to 16:00' ***, ***'s8': 'time': '16:00 to 17:00' ***, "
-                "***'s9': 'time': '17:00 to 18:00' ***"
+                ">>>Please enter the date of Booking in DD/MM/YYYY format."
             )
 
         # State and city handling
@@ -132,7 +129,8 @@ def chat_response(request):
            response = handle_ticket_input(user_message, last_museum_id, request)
            logger.debug(f"Response content: {response.content}")
 
-
+        elif user_message.startswith("yes"):
+            response=f"http://127.0.0.1:8000/payment"
         else:
             response = handle_unknown_query(user_message)
 
@@ -140,9 +138,12 @@ def chat_response(request):
         response = 'Invalid JSON in request body.'
     except Exception as e:
         logging.error(f"An error occurred: {str(e)}")
-        response = 'Transaction Created. Type the slot s1, s2.... s9'
+        if user_message.startswith("date: "):
+            response = 'Transaction Created. Type the slot s1, s2.... s9'
+        else:
+            response='Booking confirmed. Type "yes" for payment or Type "hi" to restart.'
+        
 
-    # Log the type and content of response_data
     logging.debug(f"Response data type: {type(response)}")
     logging.debug(f"Response data content: {response}")
 
@@ -237,12 +238,12 @@ def handle_museum_by_id(museum_id, request):
         request.session['last_museum_id'] = museum.id
 
         response = (
-            f"🖼 **Museum Details**:\n\n"
+            f"🖼 **Museum Details**>>>\n\n"
             f"**ID**: {museum.id}\n"
-            f"**Name**: {museum.name}\n"
-            f"**City**: {museum.city}\n"
-            f"**State**: {museum.state}\n"
-            f"**Description**: {museum.description}\n\n"
+            f">>>**Name**: {museum.name}\n"
+            f">>>**City**: {museum.city}\n"
+            f">>>**State**: {museum.state}\n"
+            f">>>**Description**: {museum.description}\n\n"
             f"In order to book tickets, type 'booking info'."
         )
 
@@ -266,13 +267,12 @@ def booking_query(last_museum_id):
         
         # Initialize the response with basic museum details
         response_lines = [
-            f"📍 **Museum Information**",
-            f"**Museum ID**: {museum.id}",
-            f"**Name**: {museum.name}",
-            f"**Opening Time**: {museum.opening_time.strftime('%H:%M')}",
-            f"**Closing Time**: {museum.closing_time.strftime('%H:%M')}",
+            f"📍 Museum Information >>>",
+            f">>>Name: {museum.name}>>>",
+            f">>>Opening Time: {museum.opening_time.strftime('%H:%M')}>>>",
+            f">>>Closing Time: {museum.closing_time.strftime('%H:%M')}>>>",
             "",
-            "📅 **Booking Information**:"
+
         ]
 
         # Time slots mapping with respective fields in the model
@@ -295,9 +295,9 @@ def booking_query(last_museum_id):
             
             # Append the slot information to the response
             if seats > 0:
-                response_lines.append(f"**Slot {slot['time']}**: {seats} seats available.")
+                response_lines.append(f">>>Slot {slot['time']}: {seats} seats available.>>>")
             else:
-                response_lines.append(f"**Slot {slot['time']}**: No seats available. Queue length: {queue}.")
+                response_lines.append(f">>>Slot {slot['time']}: No seats available. Queue length: {queue}.>>>")
         
         return "\n".join(response_lines)
 
@@ -305,6 +305,10 @@ def booking_query(last_museum_id):
         return "⚠️ The specified museum ID does not exist."
     except Exception as e:
         return f"🚨 An error occurred: {str(e)}"
+    
+def handle_yes(user_message,request):
+    if user_message.startswith("yes"):
+        return render(request,"payment.html")
 
 from datetime import datetime
 from .models import Login,Transaction
@@ -469,12 +473,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def handle_ticket_input(user_message, last_museum_id, request):
     # Extract ticket count from the user message (format: "tickets: <int>")
     if user_message.startswith("tickets: "):
         ticket_count_str = user_message.replace("tickets: ", "").strip()
-        # Validate and convert ticket count to integer
         try:
+            # Validate and convert ticket count to an integer
             count = int(ticket_count_str)
         except ValueError:
             return JsonResponse({'error': 'Invalid number of tickets. Please provide a valid integer.'}, status=400)
@@ -512,27 +517,21 @@ def handle_ticket_input(user_message, last_museum_id, request):
     current_queue_length = getattr(museum, queue_field, 0)
 
     # Fetch or create the transaction for the current booking context
-    try:
-        transaction = Transaction.objects.get(
-            museum_name_id=museum.name, date=last_date_used, slot=last_slot_code
-        )
-    except Transaction.DoesNotExist:
-        transaction = Transaction(
-            username=request.user.username,
-            museum_name_id=museum.name,
-            date=last_date_used,
-            slot=last_slot_code
-        )
+    transaction, created = Transaction.objects.get_or_create(
+        username=request.user.username,
+        museum_name_id=museum.name,
+        date=last_date_used,
+        slot=last_slot_code,
+        defaults={'no_of_tickets': 0, 'waiting_list': 0, 'booking_status': 'pending', 'payment_status': 'unpaid'}
+    )
 
     # Calculate the number of tickets to be booked and waiting list
     if count <= available_seats:
-        # Enough seats are available; book the tickets
-        tickets_to_book = count
+        tickets_to_book = count  # Enough seats are available
         waiting_list_count = 0
     else:
-        # Not enough seats; book what is available and put the rest on the waiting list
-        tickets_to_book = available_seats
-        waiting_list_count = count - available_seats
+        tickets_to_book = available_seats  # Book what is available
+        waiting_list_count = count - available_seats  # Remaining goes to the waiting list
 
     # Update the transaction with the number of tickets and waiting list
     transaction.no_of_tickets += tickets_to_book
@@ -548,14 +547,12 @@ def handle_ticket_input(user_message, last_museum_id, request):
 
     # Provide a payment link to the user
     payment_link = f"http://127.0.0.1:8000/payment"
-    request.session['booking_id'] = transaction.booking_id
-
+    request.session['booking_id'] = transaction.id  # Assuming booking_id is transaction.id
 
     return JsonResponse({
         'message': f"Booking confirmed for {tickets_to_book} tickets. {waiting_list_count} added to the waiting list. Please proceed to payment.",
         'payment_link': payment_link
     })
-
 
 from django.shortcuts import render
 
@@ -580,24 +577,6 @@ from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Transaction  # Make sure the Transaction model is imported
 def payment_view(request):
-    if request.method == 'POST':
-        booking_id = request.POST.get('booking_id')
-        print(f"Received booking_id: {booking_id}")  # Debugging line
-
-        if booking_id is None or not booking_id.isdigit():
-            return render(request, 'payment.html', {'error': 'Invalid or missing booking ID'})
-
-        booking_id = int(booking_id)
-        print(f"Converted booking_id: {booking_id}")  # Debugging line
-
-        try:
-            transaction = get_object_or_404(Transaction, booking_id=booking_id)
-        except Transaction.DoesNotExist:
-            return render(request, 'payment.html', {'error': 'Transaction not found'})
-
-        request.session['booking_id'] = booking_id
-        return redirect('success', booking_id=booking_id)
-    
     return render(request, 'payment.html')
 
 
@@ -666,6 +645,28 @@ def login_view(request):
             return HttpResponse('Invalid login credentials')
     return render(request, 'login.html')
 
+def admin_login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        # Debug: Print received values
+        print(f"Received username: {username}")
+        print(f"Received password: {password}")
+
+        if not username or not password:
+            return HttpResponse('Username and password are required')
+
+        user = authenticate(request, username=username, password=password)
+        request.session['user_id'] = user.id
+        
+        if user is not None:
+            auth_login(request, user)
+            return render(request,'admin.html')
+        else:
+            return HttpResponse('Invalid login credentials')
+    return render(request,'admin_login.html')
+
 
 @login_required
 def logout_view(request):
@@ -680,24 +681,13 @@ from django.shortcuts import render, get_object_or_404
 from django.shortcuts import render, get_object_or_404
 from .models import Transaction
 
-def success(request, booking_id):
+def success(request):
     # Retrieve the transaction from the database using the booking_id
-    transaction = get_object_or_404(Transaction, booking_id=booking_id)
-
-    # Context to be passed to the template
-    context = {
-        'booking_id': transaction.booking_id,
-        'username': transaction.username,
-        'no_of_tickets': transaction.no_of_tickets,
-        'slot': transaction.slot,
-        'date': transaction.date,
-        'waiting_list': transaction.waiting_list,
-        'museum_name': transaction.museum_name_id,
-    }
-    return render(request, 'success.html', context)
+    
+    return render(request, 'success.html')
 
 
-
+@login_required
 def admin_view(request):
     return render(request,'admin.html')
 

@@ -1,31 +1,4 @@
-[04:08, 9/11/2024] Arnav Joshi: <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCSM - National Council of Science Museums</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background-color: #f4f4f4;
-        }
-
-        header {
-            background-color: #000000ab;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #fff;
-        …
-[04:12, 9/11/2024] Arnav Joshi: <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -35,9 +8,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/pikaday.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/css/pikaday.min.css">
+    {% load static %}
     <style>
         body {
-            background-image: url(./fotor-ai-20240907192234.jpg);
+            background-image:  url("{% static "images/fotor-ai-20240907192234.jpg" %}");
             background-size: cover;
             background-position: center;
             height: 100vh;
@@ -179,7 +153,6 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Museum Name</th>
                             <th>Date</th>
                             <th>Slot</th>
                             <th>Username</th>
@@ -198,7 +171,6 @@
         <table class="table-fixed">
             <thead>
                 <tr>
-                    <th>Museum Name</th>
                     <th>Date</th>
                     <th>Total Revenue</th> <!-- Calculate from Number of Tickets -->
                 </tr>
@@ -215,7 +187,6 @@
         <table class="table-fixed">
             <thead>
                 <tr>
-                    <th>Museum Name</th>
                     <th>Date</th>
                     <th>Cancellations</th> <!-- Determine from Booking Status -->
                     <th>Reason</th> <!-- Requires additional data or assumptions -->
@@ -234,7 +205,6 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Museum Name</th>
                     <th>Date</th>
                     <th>Slot</th>
                     <th>Username</th>
@@ -254,7 +224,6 @@
         <table class="table-fixed">
             <thead>
                 <tr>
-                    <th>Museum Name</th>
                     <th>Date</th>
                     <th>Total Bookings</th> <!-- Derived from Booking ID -->
                     <th>Average Waiting Time</th> <!-- Requires additional data -->
@@ -274,7 +243,6 @@
                 <table class="table-fixed">
                     <thead>
                         <tr>
-                            <th>Museum Name</th>
                             <th>Date</th>
                             <th>Number of Cancellations</th>
                             <th>Cancellation Reason</th>
@@ -293,7 +261,6 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Museum Name</th>
                             <th>Date</th>
                             <th>Slot</th>
                             <th>Username</th>
@@ -313,7 +280,6 @@
                 <table class="table-fixed">
                     <thead>
                         <tr>
-                            <th>Museum Name</th>
                             <th>Date</th>
                             <th>Total Bookings</th>
                             <th>Average Waiting Time</th>
@@ -333,7 +299,6 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Museum Name</th>
                             <th>Date</th>
                             <th>Slot</th>
                             <th>Username</th>
@@ -361,9 +326,7 @@
 </div>
 
     <!-- SOS Dialog -->
-    <div id="sosDialog">
-        <div id="sosMessage">SOS Alert!</div>
-    </div>
+    
 
 <script src="admin.js"></script>
 
@@ -475,8 +438,8 @@ users.forEach(user => {
 
 // Initialize Waiting List Overview
 const waitingList = [
-    { id: 1, museumName: 'Museum A', date: '2024-09-10', slot: '10 AM - 11 AM', username: 'user1', tickets: 2 },
-    { id: 2, museumName: 'Museum B', date: '2024-09-10', slot: '11 AM - 12 PM', username: 'user2', tickets: 1 },
+    { id: 1, date: '2024-09-30', slot: '9 AM - 10 AM', username: 'Om', tickets: 3 },
+    { id: 2, date: '2024-09-30', slot: '11 AM - 12 PM', username: 'Arnav', tickets: 2 },
 ];
 
 const waitingListTableBody = document.getElementById('waitingListTableBody');
@@ -484,7 +447,6 @@ waitingList.forEach(item => {
     const row = document.createElement('tr');
     row.innerHTML = `
         <td>${item.id}</td>
-        <td>${item.museumName}</td>
         <td>${item.date}</td>
         <td>${item.slot}</td>
         <td>${item.username}</td>
@@ -495,8 +457,8 @@ waitingList.forEach(item => {
 
 // Initialize Booking Status Overview
 const bookingStatus = [
-    { id: 1, museumName: 'Museum A', date: '2024-09-10', slot: '10 AM - 11 AM', username: 'user1', tickets: 2, status: 'Confirmed' },
-    { id: 2, museumName: 'Museum B', date: '2024-09-10', slot: '11 AM - 12 PM', username: 'user2', tickets: 1, status: 'Pending' },
+    { id: 1, date: '2024-09-19', slot: '9 AM - 10 AM', username: 'SIH2024_Demo', tickets: 4, status: 'Confirmed' },
+    { id: 2, date: '2024-09-19', slot: '11 AM - 12 PM', username: 'Aditya', tickets: 1, status: 'Pending' },
 ];
 
 const bookingStatusTableBody = document.getElementById('bookingStatusTableBody');
@@ -504,7 +466,6 @@ bookingStatus.forEach(item => {
     const row = document.createElement('tr');
     row.innerHTML = `
         <td>${item.id}</td>
-        <td>${item.museumName}</td>
         <td>${item.date}</td>
         <td>${item.slot}</td>
         <td>${item.username}</td>
@@ -516,15 +477,14 @@ bookingStatus.forEach(item => {
 
 // Initialize Museum Insights
 const museumInsights = [
-    { museumName: 'Museum A', date: '2024-09-10', totalBookings: 50, avgWaitingTime: '10 min', peakTime: '2 PM' },
-    { museumName: 'Museum B', date: '2024-09-10', totalBookings: 30, avgWaitingTime: '15 min', peakTime: '11 AM' },
+    { date: '2024-09-18', totalBookings: 50, avgWaitingTime: '10 min', peakTime: '2 PM' },
+    { date: '2024-09-17', totalBookings: 30, avgWaitingTime: '15 min', peakTime: '11 AM' },
 ];
 
 const museumInsightsTableBody = document.getElementById('museumInsightsTableBody');
 museumInsights.forEach(item => {
     const row = document.createElement('tr');
     row.innerHTML = `
-        <td>${item.museumName}</td>
         <td>${item.date}</td>
         <td>${item.totalBookings}</td>
         <td>${item.avgWaitingTime}</td>
@@ -535,8 +495,8 @@ museumInsights.forEach(item => {
 
 // Initialize Payment Status Overview
 const paymentStatus = [
-    { id: 1, museumName: 'Museum A', date: '2024-09-10', slot: '10 AM - 11 AM', username: 'user1', tickets: 2, paymentStatus: 'Completed' },
-    { id: 2, museumName: 'Museum B', date: '2024-09-10', slot: '11 AM - 12 PM', username: 'user2', tickets: 1, paymentStatus: 'Pending' },
+    { id: 1, date: '2024-09-19', slot: '9 AM - 10 AM', username: 'SIH2024_Demo', tickets: 4, paymentStatus: 'Completed' },
+    { id: 2, date: '2024-09-18', slot: '11 AM - 12 PM', username: 'Uday', tickets: 1, paymentStatus: 'Pending' },
 ];
 
 const paymentStatusTableBody = document.getElementById('paymentStatusTableBody');
@@ -544,7 +504,6 @@ paymentStatus.forEach(item => {
     const row = document.createElement('tr');
     row.innerHTML = `
         <td>${item.id}</td>
-        <td>${item.museumName}</td>
         <td>${item.date}</td>
         <td>${item.slot}</td>
         <td>${item.username}</td>
@@ -661,55 +620,19 @@ function generateAnalysisHTML(data) {
     html += generateRatingHTML(data.exhibitRatings);
 
     html += '<h3>Additional Comments:</h3>';
-    html += data.additionalComments.map(comment => <p>${comment}</p>).join('');
+    html += data.additionalComments.map(comment => `<p>${comment}</p>`).join('');
 
     return html;
 }
 
 function generateRatingHTML(ratings) {
     return Object.entries(ratings)
-        .map(([rating, count]) => <p>Rating ${rating}: ${count}</p>)
+        .map(([rating, count]) => `<p>Rating ${rating}: ${count}</p>`)
         .join('');
 }
 
 let flashInterval;
 
-function showSOSDialog(data) {
-    const dialog = document.getElementById('sosDialog');
-    const sosMessage = document.getElementById('sosMessage');
-    
-    sosMessage.textContent = SOS Alert! User ID: ${data.userId}\n, Message: ${data.message}\n, Location: ${data.location}\n;
-    
-    dialog.style.display = 'flex';
-    
-    // Flashing effect
-    flashInterval = setInterval(() => {
-        dialog.classList.toggle('flash');
-    }, 500);
-}
-
-function hideSOSDialog() {
-    const dialog = document.getElementById('sosDialog');
-    clearInterval(flashInterval);  // Stop the flashing effect
-    dialog.style.display = 'none';
-}
-
-// Poll for SOS alert every second
-setInterval(() => {
-    const sosAlert = localStorage.getItem('sosAlert');
-    if (sosAlert) {
-        const data = JSON.parse(sosAlert);
-        showSOSDialog(data);
-        localStorage.removeItem('sosAlert');  // Remove alert after displaying
-    }
-}, 1000);
-
-// Hide SOS dialog when clicking anywhere on the page
-document.addEventListener('click', (event) => {
-    if (event.target !== document.getElementById('sosDialog') && !document.getElementById('sosDialog').contains(event.target)) {
-        hideSOSDialog();
-    }
-});
 
     </script>
 </body>
